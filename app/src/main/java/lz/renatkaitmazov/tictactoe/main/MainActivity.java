@@ -1,7 +1,9 @@
-package lz.renatkaitmazov.tictactoe;
+package lz.renatkaitmazov.tictactoe.main;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
+import lz.renatkaitmazov.tictactoe.R;
 
 public class MainActivity extends AppCompatActivity {
 
