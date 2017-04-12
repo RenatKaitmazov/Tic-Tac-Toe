@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import lz.renatkaitmazov.tictactoe.model.Grid;
 
 /**
  * All dependencies whose lifecycle
@@ -19,6 +20,10 @@ import dagger.Provides;
 
 @Module
 public final class AppModule {
+
+    /** Static variables **/
+
+    private static final short GRID_LENGTH = 3;
 
     /** Instance variables **/
 
@@ -36,5 +41,11 @@ public final class AppModule {
     @Singleton
     public final Context provideAppContext() {
         return this.app.getApplicationContext();
+    }
+
+    @Provides
+    @Singleton
+    public final Grid provideGrid() {
+        return new Grid(GRID_LENGTH);
     }
 }
