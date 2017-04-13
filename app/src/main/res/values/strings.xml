@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">TicTacToe</string>
+
+    <string name="mark_player_1">X</string>
+    <string name="mark_player_2">O</string>
 </resources>

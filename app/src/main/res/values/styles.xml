@@ -8,4 +8,10 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="SquareButtonWithBigText">
+        <item name="android:layout_width">@dimen/width_button</item>
+        <item name="android:layout_height">@dimen/height_button</item>
+        <item name="android:textSize">@dimen/button_text_size</item>
+    </style>
+
 </resources>

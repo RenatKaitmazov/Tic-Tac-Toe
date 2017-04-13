@@ -5,5 +5,4 @@ package lz.renatkaitmazov.tictactoe.base;
  */
 
 public interface MvpView {
-
 }
