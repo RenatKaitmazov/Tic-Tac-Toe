@@ -9,13 +9,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import lz.renatkaitmazov.tictactoe.R;
+import lz.renatkaitmazov.tictactoe.base.BaseFragment;
 import lz.renatkaitmazov.tictactoe.databinding.FragmentMainBinding;
+import lz.renatkaitmazov.tictactoe.di.fragment.FragmentComponent;
 
 /**
  * @author Renat Kaitmazov
  */
 
-public final class MainFragment extends Fragment {
+public final class MainFragment extends BaseFragment {
 
     /** Lifecycle **/
 
@@ -27,6 +29,13 @@ public final class MainFragment extends Fragment {
         final FragmentMainBinding binding =
                 DataBindingUtil.inflate(inflater, R.layout.fragment_main, container, false);
         return binding.getRoot();
+    }
+
+    /** BaseFragment implementation **/
+
+    @Override
+    protected final void onFragmentComponentCreated(FragmentComponent fragmentComponent) {
+        fragmentComponent.inject(this);
     }
 
     /** API **/
