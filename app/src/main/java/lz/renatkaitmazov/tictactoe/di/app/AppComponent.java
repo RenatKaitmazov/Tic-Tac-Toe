@@ -3,6 +3,8 @@ package lz.renatkaitmazov.tictactoe.di.app;
 import javax.inject.Singleton;
 
 import dagger.Component;
+import lz.renatkaitmazov.tictactoe.di.fragment.FragmentComponent;
+import lz.renatkaitmazov.tictactoe.di.fragment.FragmentModule;
 import lz.renatkaitmazov.tictactoe.main.MainActivity;
 
 /**
@@ -12,4 +14,5 @@ import lz.renatkaitmazov.tictactoe.main.MainActivity;
 @Singleton
 @Component(modules = {AppModule.class})
 public interface AppComponent {
+    FragmentComponent addFragmentComponent(FragmentModule fragmentModule);
 }

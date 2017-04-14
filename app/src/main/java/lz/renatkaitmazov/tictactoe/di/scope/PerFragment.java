@@ -1,4 +1,4 @@
-package lz.renatkaitmazov.tictactoe.di;
+package lz.renatkaitmazov.tictactoe.di.scope;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
