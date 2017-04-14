@@ -114,7 +114,7 @@ public final class GridTest {
             }
         }
 
-        grid.reset();
+        grid.resetGame();
 
         for (short i = 0; i < length; ++i) {
             for (short j = 0; j < length; ++j) {
@@ -129,7 +129,7 @@ public final class GridTest {
         final short row = 0;
         final byte playerId = 1;
 
-        grid.reset();
+        grid.resetGame();
         assertFalse(grid.playerHasWon(playerId));
 
         for (short i = 0; i < length; ++i) {
@@ -143,7 +143,7 @@ public final class GridTest {
         final short row = 1;
         final byte playerId = -1;
 
-        grid.reset();
+        grid.resetGame();
         assertFalse(grid.playerHasWon(playerId));
 
         for (short i = 0; i < length; ++i) {
@@ -157,7 +157,7 @@ public final class GridTest {
         final short row = 2;
         final byte playerId = -1;
 
-        grid.reset();
+        grid.resetGame();
         assertFalse(grid.playerHasWon(playerId));
 
         for (short i = 0; i < length; ++i) {
@@ -171,7 +171,7 @@ public final class GridTest {
         final short column = 0;
         final byte playerId = -1;
 
-        grid.reset();
+        grid.resetGame();
         assertFalse(grid.playerHasWon(playerId));
 
         for (short i = 0; i < length; ++i) {
@@ -185,7 +185,7 @@ public final class GridTest {
         final short column = 1;
         final byte playerId = -1;
 
-        grid.reset();
+        grid.resetGame();
         assertFalse(grid.playerHasWon(playerId));
 
         for (short i = 0; i < length; ++i) {
@@ -199,7 +199,7 @@ public final class GridTest {
         final short column = 2;
         final byte playerId = -1;
 
-        grid.reset();
+        grid.resetGame();
         assertFalse(grid.playerHasWon(playerId));
 
         for (short i = 0; i < length; ++i) {
@@ -212,7 +212,7 @@ public final class GridTest {
     public final void testLeftToRightDiagonalHasMatch() throws Exception {
         final byte playerId = 1;
 
-        grid.reset();
+        grid.resetGame();
         assertFalse(grid.playerHasWon(playerId));
 
         for (short i = 0; i < length; ++i) {
@@ -225,7 +225,7 @@ public final class GridTest {
     public final void testRightToLeftDiagonalHasMatch() throws Exception {
         final byte playerId = -1;
 
-        grid.reset();
+        grid.resetGame();
         assertFalse(grid.playerHasWon(playerId));
 
         for (short i = 0; i < length; ++i) {

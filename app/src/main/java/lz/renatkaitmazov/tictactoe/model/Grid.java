@@ -9,7 +9,7 @@ package lz.renatkaitmazov.tictactoe.model;
  * @author Renat Kaitmazov
  */
 
-public final class Grid {
+public final class Grid implements Game {
 
     /** Instance variables **/
 
@@ -29,16 +29,19 @@ public final class Grid {
 
     /** API **/
 
-    public final short length() {
+    @Override
+    public final short boardLength() {
         return length;
     }
 
+    @Override
     public final byte getAt(short row, short column) {
         checkIndices(row, column);
         final int index = (row * length) + column;
         return grid[index];
     }
 
+    @Override
     public final void setAt(short row, short column, byte playerId) {
         checkIndices(row, column);
         checkValue(playerId);
@@ -46,7 +49,8 @@ public final class Grid {
         grid[index] = playerId;
     }
 
-    public final void reset() {
+    @Override
+    public final void resetGame() {
         final int size = length * length;
         for (int i = 0; i < size; ++i) {
             grid[i] = 0;

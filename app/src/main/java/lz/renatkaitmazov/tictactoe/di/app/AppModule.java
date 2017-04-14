@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
+import lz.renatkaitmazov.tictactoe.model.Game;
 import lz.renatkaitmazov.tictactoe.model.Grid;
 
 /**
@@ -45,7 +46,7 @@ public final class AppModule {
 
     @Provides
     @Singleton
-    public final Grid provideGrid() {
+    public final Game provideSquareGridGame() {
         return new Grid(GRID_LENGTH);
     }
 }
