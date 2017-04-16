@@ -7,78 +7,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-        <!--Third Row-->
-
-        <Button
-            android:id="@id/button9"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/button6"
-            app:layout_constraintLeft_toRightOf="@id/button8"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:tag="8"
-            style="@style/SquareButtonWithBigText"/>
-
-        <Button
-            android:id="@id/button8"
-            app:layout_constraintRight_toLeftOf="@id/button9"
-            app:layout_constraintTop_toBottomOf="@id/button5"
-            app:layout_constraintLeft_toRightOf="@id/button7"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:tag="7"
-            style="@style/SquareButtonWithBigText"/>
-
-        <Button
-            android:id="@id/button7"
-            app:layout_constraintRight_toLeftOf="@id/button8"
-            app:layout_constraintTop_toBottomOf="@id/button4"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:tag="6"
-            style="@style/SquareButtonWithBigText"/>
-
-
-        <!--Second Row-->
-
-        <Button
-            android:id="@id/button6"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/button3"
-            app:layout_constraintLeft_toRightOf="@id/button5"
-            app:layout_constraintBottom_toTopOf="@id/button9"
-            android:tag="5"
-            style="@style/SquareButtonWithBigText"/>
-
-        <Button
-            android:id="@id/button5"
-            app:layout_constraintRight_toLeftOf="@id/button6"
-            app:layout_constraintTop_toBottomOf="@id/button2"
-            app:layout_constraintLeft_toRightOf="@id/button4"
-            app:layout_constraintBottom_toTopOf="@id/button8"
-            android:tag="4"
-            style="@style/SquareButtonWithBigText"/>
-
-        <Button
-            android:id="@id/button4"
-            app:layout_constraintRight_toLeftOf="@id/button5"
-            app:layout_constraintTop_toBottomOf="@id/button1"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/button7"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            android:tag="3"
-            style="@style/SquareButtonWithBigText"/>
-
         <!--First Row-->
 
         <Button
-            android:id="@id/button3"
-            app:layout_constraintRight_toRightOf="parent"
+            android:id="@id/button1"
+            app:layout_constraintRight_toLeftOf="@id/button2"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/button2"
-            app:layout_constraintBottom_toTopOf="@id/button6"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/button4"
+            app:layout_constraintHorizontal_chainStyle="packed"
             app:layout_constraintVertical_chainStyle="packed"
-            android:tag="2"
+            android:tag="0"
             style="@style/SquareButtonWithBigText"/>
 
         <Button
@@ -92,16 +31,74 @@
             style="@style/SquareButtonWithBigText"/>
 
         <Button
-            android:id="@id/button1"
-            app:layout_constraintRight_toLeftOf="@id/button2"
+            android:id="@id/button3"
+            app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/button4"
-            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintLeft_toRightOf="@id/button2"
+            app:layout_constraintBottom_toTopOf="@id/button6"
             app:layout_constraintVertical_chainStyle="packed"
-            android:tag="0"
+            android:tag="2"
             style="@style/SquareButtonWithBigText"/>
 
+        <!--Second Row-->
+
+        <Button
+            android:id="@id/button4"
+            app:layout_constraintRight_toLeftOf="@id/button5"
+            app:layout_constraintTop_toBottomOf="@id/button1"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/button7"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            android:tag="3"
+            style="@style/SquareButtonWithBigText"/>
+
+        <Button
+            android:id="@id/button5"
+            app:layout_constraintRight_toLeftOf="@id/button6"
+            app:layout_constraintTop_toBottomOf="@id/button2"
+            app:layout_constraintLeft_toRightOf="@id/button4"
+            app:layout_constraintBottom_toTopOf="@id/button8"
+            android:tag="4"
+            style="@style/SquareButtonWithBigText"/>
+
+        <Button
+            android:id="@id/button6"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button3"
+            app:layout_constraintLeft_toRightOf="@id/button5"
+            app:layout_constraintBottom_toTopOf="@id/button9"
+            android:tag="5"
+            style="@style/SquareButtonWithBigText"/>
+
+        <!--Third Row-->
+
+        <Button
+            android:id="@id/button7"
+            app:layout_constraintRight_toLeftOf="@id/button8"
+            app:layout_constraintTop_toBottomOf="@id/button4"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:tag="6"
+            style="@style/SquareButtonWithBigText"/>
+
+        <Button
+            android:id="@id/button8"
+            app:layout_constraintRight_toLeftOf="@id/button9"
+            app:layout_constraintTop_toBottomOf="@id/button5"
+            app:layout_constraintLeft_toRightOf="@id/button7"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:tag="7"
+            style="@style/SquareButtonWithBigText"/>
+
+        <Button
+            android:id="@id/button9"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/button6"
+            app:layout_constraintLeft_toRightOf="@id/button8"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:tag="8"
+            style="@style/SquareButtonWithBigText"/>
 
     </android.support.constraint.ConstraintLayout>
 

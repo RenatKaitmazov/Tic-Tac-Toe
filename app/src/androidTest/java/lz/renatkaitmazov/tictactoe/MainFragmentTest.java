@@ -36,5 +36,13 @@ public final class MainFragmentTest {
         onView(withId(R.id.button1))
                 .perform(click())
                 .check(matches(withText(R.string.mark_player_1)));
+
+        onView(withId(R.id.button5))
+                .perform(click())
+                .check(matches(withText(R.string.mark_player_1)));
+
+        onView(withId(R.id.button9))
+                .perform(click())
+                .check(matches(withText(R.string.mark_player_1)));
     }
 }

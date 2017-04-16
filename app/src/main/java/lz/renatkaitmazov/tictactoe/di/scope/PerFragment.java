@@ -5,6 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 import javax.inject.Qualifier;
+import javax.inject.Scope;
 
 /**
  * A custom scope for fragments.
@@ -14,7 +15,7 @@ import javax.inject.Qualifier;
  * @author Renat Kaitmazov
  */
 
-@Qualifier
+@Scope
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PerFragment {

@@ -6,6 +6,7 @@ import dagger.Component;
 import lz.renatkaitmazov.tictactoe.di.fragment.FragmentComponent;
 import lz.renatkaitmazov.tictactoe.di.fragment.FragmentModule;
 import lz.renatkaitmazov.tictactoe.main.MainActivity;
+import lz.renatkaitmazov.tictactoe.model.Game;
 
 /**
  * @author Renat Kaitmazov

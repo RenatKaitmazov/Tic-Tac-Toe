@@ -42,11 +42,13 @@ public final class Grid implements Game {
     }
 
     @Override
-    public final void setAt(short row, short column, byte playerId) {
+    public final boolean setAt(short row, short column, byte playerId) {
         checkIndices(row, column);
         checkValue(playerId);
         final int index = (row * length) + column;
+        if (grid[index] != 0) return false;
         grid[index] = playerId;
+        return true;
     }
 
     @Override
@@ -57,6 +59,7 @@ public final class Grid implements Game {
         }
     }
 
+    @Override
     public final boolean playerHasWon(byte playerId) {
         return hasMatchInRows(playerId) || hasMatchInColumns(playerId) || hasMathInDiagonals(playerId);
     }

@@ -24,7 +24,7 @@ public final class AppModule {
 
     /** Static variables **/
 
-    private static final short GRID_LENGTH = 3;
+    public static final short GRID_LENGTH = 3;
 
     /** Instance variables **/
 
@@ -40,13 +40,13 @@ public final class AppModule {
 
     @Provides
     @Singleton
-    public final Context provideAppContext() {
+    final Context provideAppContext() {
         return this.app.getApplicationContext();
     }
 
     @Provides
     @Singleton
-    public final Game provideSquareGridGame() {
+    final Game provideSquareGridGame() {
         return new Grid(GRID_LENGTH);
     }
 }

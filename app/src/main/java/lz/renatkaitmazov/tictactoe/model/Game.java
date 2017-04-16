@@ -7,6 +7,7 @@ package lz.renatkaitmazov.tictactoe.model;
 public interface Game {
     short boardLength();
     byte getAt(short row, short column);
-    void setAt(short row, short column, byte value);
+    boolean setAt(short row, short column, byte value);
     void resetGame();
+    boolean playerHasWon(byte playerId);
 }
