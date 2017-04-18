@@ -14,6 +14,8 @@ public final class MainPresenterImpl extends BasePresenter<MainMvpView> implemen
 
     private final Game ticTacToeGame;
     private byte playerId = -1;
+    private short movesTillTie = AppModule.GRID_LENGTH * AppModule.GRID_LENGTH;
+    private boolean gameIsOver;
 
     /** Constructors **/
 
@@ -24,20 +26,58 @@ public final class MainPresenterImpl extends BasePresenter<MainMvpView> implemen
     /** API **/
 
     @Override
-    public void onButtonClicked(int index) {
-        final short row = (short) (index / AppModule.GRID_LENGTH);
-        final short column = (short) (index % AppModule.GRID_LENGTH);
-        if (ticTacToeGame.setAt(row, column, playerId)) {
-            // TODO make the view give a visual feedback after each move of the two players.
-            if (ticTacToeGame.playerHasWon(playerId)) {
-                // TODO let the view know that we have a winner
-            } else {
-                // The other player's turn
-                playerId = (byte) -playerId;
-                if (view != null) {
+    public final void loadGame() {
+        if (view != null) {
+            view.showProgress();
+            final byte[] playersMoves = ticTacToeGame.getPlayersMoves();
+            view.onGameLoaded(playersMoves);
+            if (gameIsOver) {
+                view.onGameIsOver(playerId);
+            }
 
+            if (movesTillTie == 0) {
+                view.onTie();
+            }
+            view.hideProgress();
+        }
+    }
+
+    @Override
+    public void onButtonClicked(int index) {
+        if (view != null) {
+            if (gameIsOver) {
+                view.onGameIsOver(playerId);
+                return;
+            }
+
+            if (movesTillTie == 0) {
+                view.onTie();
+                return;
+            }
+
+            final short row = (short) (index / AppModule.GRID_LENGTH);
+            final short column = (short) (index % AppModule.GRID_LENGTH);
+            if (ticTacToeGame.setAt(row, column, playerId)) {
+                view.onPlayerMoved(playerId, index);
+                if (ticTacToeGame.playerHasWon(playerId)) {
+                    gameIsOver = true;
+                    view.onGameIsOver(playerId);
+                } else  {
+                    playerId = (byte) -playerId;
+                    --movesTillTie;
+                    if (movesTillTie == 0) {
+                        view.onTie();
+                    }
                 }
             }
         }
+    }
+
+    @Override
+    public final void startNewGame() {
+        playerId = -1;
+        gameIsOver = false;
+        movesTillTie = AppModule.GRID_LENGTH * AppModule.GRID_LENGTH;
+        ticTacToeGame.resetGame();
     }
 }

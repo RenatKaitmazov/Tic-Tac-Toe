@@ -2,8 +2,10 @@ package lz.renatkaitmazov.tictactoe.main;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,6 +44,12 @@ public final class MainFragment extends BaseFragment<MainMvpView> implements Mai
         return binding.getRoot();
     }
 
+    @Override
+    public final void onStart() {
+        super.onStart();
+        presenter.loadGame();
+    }
+
     /** BaseFragment implementation **/
 
     @Override
@@ -57,6 +65,58 @@ public final class MainFragment extends BaseFragment<MainMvpView> implements Mai
     @Override
     protected final MainMvpView getMvpView() {
         return this;
+    }
+
+    /** MainMvpView implementation **/
+
+    @Override
+    public final void showProgress() {
+
+    }
+
+    @Override
+    public final void hideProgress() {
+
+    }
+
+    @Override
+    public final void onGameLoaded(byte[] playersMoves) {
+        final int size = playersMoves.length;
+        for (int i = 0; i < size; ++i) {
+            final byte move = playersMoves[i];
+            if (move != 0) {
+                final Button btn = buttons[i];
+                btn.setText(move == -1 ? "X" : "O");
+            }
+        }
+    }
+
+    @Override
+    public final void onPlayerMoved(int playerId, int index) {
+        final Button btn = buttons[index];
+        final String symbol;
+        if (playerId == -1) {
+            symbol = getString(R.string.mark_player_1);
+        } else if (playerId == +1) {
+            symbol = getString(R.string.mark_player_2);
+        } else {
+            symbol = "";
+        }
+        btn.setText(symbol);
+    }
+
+    @Override
+    public final void onGameIsOver(byte winnerId) {
+        // TODO: 1) Show a dialog to the user
+        print(winnerId + " has won the game.");
+        startNewGame();
+    }
+
+    @Override
+    public final void onTie() {
+        // TODO: 2) Show a dialog to the user
+        print("Nobody has been able to win.");
+        startNewGame();
     }
 
     /** API **/
@@ -84,6 +144,27 @@ public final class MainFragment extends BaseFragment<MainMvpView> implements Mai
                     presenter.onButtonClicked(index);
                 }
             });
+        }
+    }
+
+    private void print(String msg) {
+        final String log = "MainFragment";
+        Log.i(log, msg);
+    }
+
+    private void startNewGame() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                resetButtons();
+                presenter.startNewGame();
+            }
+        }, 1_000L);
+    }
+
+    private void resetButtons() {
+        for (final Button btn : buttons) {
+            btn.setText("");
         }
     }
 }

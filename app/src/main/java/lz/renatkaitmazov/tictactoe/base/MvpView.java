@@ -5,4 +5,6 @@ package lz.renatkaitmazov.tictactoe.base;
  */
 
 public interface MvpView {
+    void showProgress();
+    void hideProgress();
 }

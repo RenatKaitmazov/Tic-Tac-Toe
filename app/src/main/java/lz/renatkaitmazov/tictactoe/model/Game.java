@@ -10,4 +10,5 @@ public interface Game {
     boolean setAt(short row, short column, byte value);
     void resetGame();
     boolean playerHasWon(byte playerId);
+    byte[] getPlayersMoves();
 }

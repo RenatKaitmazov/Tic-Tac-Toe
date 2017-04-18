@@ -30,6 +30,14 @@ public final class Grid implements Game {
     /** API **/
 
     @Override
+    public final byte[] getPlayersMoves() {
+        final int size = grid.length;
+        final byte[] playersMoves = new byte[size];
+        System.arraycopy(grid, 0, playersMoves, 0, size);
+        return playersMoves;
+    }
+
+    @Override
     public final short boardLength() {
         return length;
     }

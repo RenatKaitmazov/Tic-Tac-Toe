@@ -7,6 +7,7 @@ import static android.support.test.espresso.Espresso.*;
 import static android.support.test.espresso.action.ViewActions.*;
 import static android.support.test.espresso.assertion.ViewAssertions.*;
 import static android.support.test.espresso.matcher.ViewMatchers.*;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -32,17 +33,51 @@ public final class MainFragmentTest {
     }
 
     @Test
-    public final void testFirstButtonIsPressed() throws Exception {
+    public final void testFirstPlayerWon() {
         onView(withId(R.id.button1))
                 .perform(click())
                 .check(matches(withText(R.string.mark_player_1)));
 
-        onView(withId(R.id.button5))
+        onView(withId(R.id.button2))
+                .perform(click())
+                .check(matches(withText(R.string.mark_player_2)));
+
+        onView(withId(R.id.button4))
                 .perform(click())
                 .check(matches(withText(R.string.mark_player_1)));
 
-        onView(withId(R.id.button9))
+        onView(withId(R.id.button3))
+                .perform(click())
+                .check(matches(withText(R.string.mark_player_2)));
+
+        onView(withId(R.id.button7))
                 .perform(click())
                 .check(matches(withText(R.string.mark_player_1)));
+    }
+
+    @Test
+    public final void testGameIsOver() {
+        onView(withId(R.id.button1))
+                .perform(click())
+                .check(matches(withText(R.string.mark_player_1)));
+
+        onView(withId(R.id.button2))
+                .perform(click())
+                .check(matches(withText(R.string.mark_player_2)));
+
+        onView(withId(R.id.button4))
+                .perform(click())
+                .check(matches(withText(R.string.mark_player_1)));
+
+        onView(withId(R.id.button3))
+                .perform(click())
+                .check(matches(withText(R.string.mark_player_2)));
+
+        onView(withId(R.id.button7))
+                .perform(click())
+                .check(matches(withText(R.string.mark_player_1)));
+
+        onView(withId(R.id.button1))
+                .check(matches(withText("")));
     }
 }
