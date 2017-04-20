@@ -14,7 +14,7 @@ public final class MainPresenterImpl extends BasePresenter<MainMvpView> implemen
 
     private final Game ticTacToeGame;
     private byte playerId = -1;
-    private short movesTillTie = AppModule.GRID_LENGTH * AppModule.GRID_LENGTH;
+    private short movesTillTie = AppModule.CELL_PER_ROW * AppModule.CELL_PER_ROW;
     private boolean gameIsOver;
 
     /** Constructors **/
@@ -55,8 +55,8 @@ public final class MainPresenterImpl extends BasePresenter<MainMvpView> implemen
                 return;
             }
 
-            final short row = (short) (index / AppModule.GRID_LENGTH);
-            final short column = (short) (index % AppModule.GRID_LENGTH);
+            final short row = (short) (index / AppModule.CELL_PER_ROW);
+            final short column = (short) (index % AppModule.CELL_PER_ROW);
             if (ticTacToeGame.setAt(row, column, playerId)) {
                 view.onPlayerMoved(playerId, index);
                 if (ticTacToeGame.playerHasWon(playerId)) {
@@ -77,7 +77,7 @@ public final class MainPresenterImpl extends BasePresenter<MainMvpView> implemen
     public final void startNewGame() {
         playerId = -1;
         gameIsOver = false;
-        movesTillTie = AppModule.GRID_LENGTH * AppModule.GRID_LENGTH;
+        movesTillTie = AppModule.CELL_PER_ROW * AppModule.CELL_PER_ROW;
         ticTacToeGame.resetGame();
     }
 }

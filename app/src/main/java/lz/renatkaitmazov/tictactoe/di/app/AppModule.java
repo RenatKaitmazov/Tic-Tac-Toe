@@ -24,7 +24,7 @@ public final class AppModule {
 
     /** Static variables **/
 
-    public static final short GRID_LENGTH = 3;
+    public static final short CELL_PER_ROW = 3;
 
     /** Instance variables **/
 
@@ -47,6 +47,6 @@ public final class AppModule {
     @Provides
     @Singleton
     final Game provideSquareGridGame() {
-        return new Grid(GRID_LENGTH);
+        return new Grid(CELL_PER_ROW);
     }
 }

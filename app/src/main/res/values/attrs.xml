@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="GameView">
+        <attr name="backColor" format="color"/>
+        <attr name="separatorColor" format="color"/>
+        <attr name="perimeterColor" format="color"/>
+        <attr name="xMarkerColor" format="color"/>
+        <attr name="oMarkerColor" format="color"/>
+    </declare-styleable>
+</resources>

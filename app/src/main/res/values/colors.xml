@@ -3,4 +3,12 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <!--Game View-->
+    <color name="defaultGameViewBackColor">#363636</color>
+    <color name="defaultSeparatorColor">#00BCD4</color>
+    <color name="defaultPerimeterColor">@color/defaultGameViewBackColor</color>
+    <color name="defaultXMarkerColor">#009688</color>
+    <color name="defaultOMarkerColor">#03A9F4</color>
+    <!--Game View-->
 </resources>
