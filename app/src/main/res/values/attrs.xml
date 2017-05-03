@@ -3,7 +3,6 @@
     <declare-styleable name="GameView">
         <attr name="backColor" format="color"/>
         <attr name="separatorColor" format="color"/>
-        <attr name="perimeterColor" format="color"/>
         <attr name="xMarkerColor" format="color"/>
         <attr name="oMarkerColor" format="color"/>
     </declare-styleable>

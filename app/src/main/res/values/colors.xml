@@ -5,10 +5,12 @@
     <color name="colorAccent">#FF4081</color>
 
     <!--Game View-->
-    <color name="defaultGameViewBackColor">#363636</color>
-    <color name="defaultSeparatorColor">#00BCD4</color>
-    <color name="defaultPerimeterColor">@color/defaultGameViewBackColor</color>
-    <color name="defaultXMarkerColor">#009688</color>
-    <color name="defaultOMarkerColor">#03A9F4</color>
+    <color name="gameViewBackColor">#363636</color>
+    <color name="separatorColor">#00BCD4</color>
+    <color name="perimeterColor">@color/gameViewBackColor</color>
+    <color name="xMarkerColor">#009688</color>
+    <color name="xMarkerThumbnailColor">@color/xMarkerColor</color>
+    <color name="oMarkerColor">#03A9F4</color>
+    <color name="oMarkerThumbnailColor">@color/oMarkerColor</color>
     <!--Game View-->
 </resources>

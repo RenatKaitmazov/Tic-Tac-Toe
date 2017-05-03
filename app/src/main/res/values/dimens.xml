@@ -5,17 +5,23 @@
     <dimen name="margin16">12dp</dimen>
     <dimen name="margin32">32dp</dimen>
     <dimen name="margin48">48dp</dimen>
+    <dimen name="margin64">64dp</dimen>
 
     <dimen name="padding4">4dp</dimen>
     <dimen name="padding8">8dp</dimen>
     <dimen name="padding16">16dp</dimen>
     <dimen name="padding32">32dp</dimen>
+    <dimen name="padding48">48dp</dimen>
     <dimen name="padding64">64dp</dimen>
 
     <!--Game View-->
-    <dimen name="separatorThickness">0.5dp</dimen>
-    <dimen name="xMarkerThickness">3dp</dimen>
-    <dimen name="oMarkerThickness">3dp</dimen>
-    <dimen name="gridLength">300dp</dimen>
+    <dimen name="separatorThickness">1dp</dimen>
+    <dimen name="perimeterThickness">1dp</dimen>
+    <dimen name="xMarkerThickness">10dp</dimen>
+    <dimen name="xMarkerThumbnailThickness">5dp</dimen>
+    <dimen name="oMarkerThickness">10dp</dimen>
+    <dimen name="oMarkerThumbnailThickness">5dp</dimen>
+    <dimen name="gridLength">180dp</dimen>
+    <dimen name="markerThumbnailToGridMargin">@dimen/margin32</dimen>
 
 </resources>

@@ -2,22 +2,18 @@ package lz.renatkaitmazov.tictactoe.main;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import javax.inject.Inject;
 
 import lz.renatkaitmazov.tictactoe.R;
 import lz.renatkaitmazov.tictactoe.base.BaseFragment;
 import lz.renatkaitmazov.tictactoe.base.Presenter;
+import lz.renatkaitmazov.tictactoe.customviews.GameView;
 import lz.renatkaitmazov.tictactoe.databinding.FragmentMainBinding;
-import lz.renatkaitmazov.tictactoe.di.app.AppModule;
 import lz.renatkaitmazov.tictactoe.di.fragment.FragmentComponent;
 
 /**
@@ -38,7 +34,10 @@ public final class MainFragment extends BaseFragment<MainMvpView> implements Mai
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         final FragmentMainBinding binding =
-                DataBindingUtil.inflate(inflater, R.layout.fragment_main, container, false);
+                DataBindingUtil.inflate(inflater,
+                        R.layout.fragment_main, container, false);
+        final GameView gameView = ((GameView) binding.getRoot());
+
         return binding.getRoot();
     }
 
