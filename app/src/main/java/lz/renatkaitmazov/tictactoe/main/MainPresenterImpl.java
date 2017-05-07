@@ -13,7 +13,7 @@ public final class MainPresenterImpl extends BasePresenter<MainMvpView> implemen
     /** Instance variables **/
 
     private final Game ticTacToeGame;
-    private byte playerId = -1;
+    private byte playerId = +1;
     private short movesTillTie = AppModule.CELL_PER_ROW * AppModule.CELL_PER_ROW;
     private boolean gameIsOver;
 
@@ -43,7 +43,7 @@ public final class MainPresenterImpl extends BasePresenter<MainMvpView> implemen
     }
 
     @Override
-    public void onButtonClicked(int index) {
+    public void onCellClicked(int index) {
         if (view != null) {
             if (gameIsOver) {
                 view.onGameIsOver(playerId);
@@ -75,7 +75,7 @@ public final class MainPresenterImpl extends BasePresenter<MainMvpView> implemen
 
     @Override
     public final void startNewGame() {
-        playerId = -1;
+        playerId = +1;
         gameIsOver = false;
         movesTillTie = AppModule.CELL_PER_ROW * AppModule.CELL_PER_ROW;
         ticTacToeGame.resetGame();

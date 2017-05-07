@@ -20,11 +20,14 @@ import lz.renatkaitmazov.tictactoe.di.fragment.FragmentComponent;
  * @author Renat Kaitmazov
  */
 
-public final class MainFragment extends BaseFragment<MainMvpView> implements MainMvpView {
+public final class MainFragment extends BaseFragment<MainMvpView>
+        implements MainMvpView, GameView.GameViewListener {
 
     /** Instance variables **/
 
     @Inject MainPresenter presenter;
+
+    private GameView gameView;
 
     /** Lifecycle **/
 
@@ -36,8 +39,8 @@ public final class MainFragment extends BaseFragment<MainMvpView> implements Mai
         final FragmentMainBinding binding =
                 DataBindingUtil.inflate(inflater,
                         R.layout.fragment_main, container, false);
-        final GameView gameView = ((GameView) binding.getRoot());
-
+        gameView = ((GameView) binding.getRoot());
+        gameView.setGameViewListener(this);
         return binding.getRoot();
     }
 
@@ -68,12 +71,10 @@ public final class MainFragment extends BaseFragment<MainMvpView> implements Mai
 
     @Override
     public final void showProgress() {
-
     }
 
     @Override
     public final void hideProgress() {
-
     }
 
     @Override
@@ -83,7 +84,9 @@ public final class MainFragment extends BaseFragment<MainMvpView> implements Mai
 
     @Override
     public final void onPlayerMoved(int playerId, int index) {
-
+        gameView.drawMarkerAtIndex(playerId, index);
+        if (playerId == +1) gameView.switchFocusToOMarkerThumbnail();
+        else if (playerId == -1) gameView.switchFocusToXMarkerThumbnail();
     }
 
     @Override
@@ -94,6 +97,24 @@ public final class MainFragment extends BaseFragment<MainMvpView> implements Mai
     @Override
     public final void onTie() {
         // TODO: 2) Show a dialog to the user
+    }
+
+    /** GameView.GameViewListener implementation **/
+
+    @Override
+    public final void onCellClicked(int index) {
+        presenter.onCellClicked(index);
+        System.out.println("Clicked at index: " + index);
+    }
+
+    @Override
+    public final void onOutsideGridClicked() {
+        System.out.println("Clicked outside of the grid");
+    }
+
+    @Override
+    public final void onFingerMovedAwayFromCell() {
+        System.out.println("Finger moved away from cell");
     }
 
     /** API **/

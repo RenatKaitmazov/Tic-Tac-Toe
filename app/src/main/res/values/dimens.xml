@@ -21,7 +21,7 @@
     <dimen name="xMarkerThumbnailThickness">5dp</dimen>
     <dimen name="oMarkerThickness">10dp</dimen>
     <dimen name="oMarkerThumbnailThickness">5dp</dimen>
-    <dimen name="gridLength">180dp</dimen>
+    <dimen name="gridLength">210dp</dimen>
     <dimen name="markerThumbnailToGridMargin">@dimen/margin32</dimen>
 
 </resources>

@@ -7,9 +7,7 @@ import android.graphics.*
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
-import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
-import android.view.animation.RotateAnimation
 import lz.renatkaitmazov.tictactoe.R
 import lz.renatkaitmazov.tictactoe.di.app.AppModule
 
@@ -20,7 +18,26 @@ import lz.renatkaitmazov.tictactoe.di.app.AppModule
 
 class GameView : View {
 
+    /** Interfaces **/
+
+    interface GameViewListener {
+        fun onCellClicked(index: Int)
+        fun onOutsideGridClicked()
+        fun onFingerMovedAwayFromCell()
+    }
+
     /** Instance variables **/
+
+    var gameViewListener: GameViewListener? = null
+
+    // Prevents a mark from appearing when the user clicks outside of the grid and then
+    // moves finger into the boundaries of the grid and then releases his finger.
+    // Stores one of the indices of the grid when the user clicks the grid. -1 indicates
+    // that the click was performed outside of the grid.
+    var actionDownIndex = -1
+
+    // Holds markers to be drawn
+    val markers: Array<Pair<Path, Paint>?> = Array(AppModule.CELL_PER_ROW * AppModule.CELL_PER_ROW) { null }
 
     val fadeAnimationDuration: Long = 300L
     val scaleAnimationDuration: Long = 300L
@@ -106,6 +123,10 @@ class GameView : View {
         Rect(rectF.left.toInt(), rectF.top.toInt(), rectF.right.toInt(), rectF.bottom.toInt())
     }
 
+    val markerOffset: Float by lazy(LazyThreadSafetyMode.NONE) {
+        dipToPixel(12F)
+    }
+
     /** Constructors **/
 
     constructor(ctx: Context) : super(ctx) {
@@ -145,21 +166,34 @@ class GameView : View {
             canvas.drawPath(horizontalSeparatorPath, separatorPaint)
             canvas.drawPath(xMarkerThumbnailPath, xMarkerThumbnailPaint)
             canvas.drawPath(oMarkerThumbnailPath, oMarkerThumbnailPaint)
+
+            markers
+                    .filter { it != null }
+                    .forEach { canvas.drawPath(it!!.first, it.second) }
         }
     }
 
-    var animId = 1
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         when (event?.action) {
-            MotionEvent.ACTION_DOWN -> return true
-            MotionEvent.ACTION_UP -> {
-                if (animId == 1) {
-                    fadeInOMarkerThumbnail()
-                } else {
-                    fadeInXMarkerAndFadeOutOMarker()
+            MotionEvent.ACTION_DOWN -> {
+                actionDownIndex = getIndexByTouch(event)
+                if (actionDownIndex < 0) {
+                    gameViewListener?.onOutsideGridClicked()
+                    // No need to further handle touch events if the initial click
+                    // was outside of the grid.
+                    return false
                 }
-                animId = 1 - animId
-
+                return true
+            }
+            MotionEvent.ACTION_UP -> {
+                val actionUpIndex = getIndexByTouch(event)
+                if (actionDownIndex != actionUpIndex) {
+                    // The user initially clicked on one cell and then moved his finger
+                    // around and released it at some other place
+                    gameViewListener?.onFingerMovedAwayFromCell()
+                    return false
+                }
+                gameViewListener?.onCellClicked(actionUpIndex)
                 return true
             }
             else -> return super.onTouchEvent(event)
@@ -168,7 +202,7 @@ class GameView : View {
 
     /** API **/
 
-    fun fadeInXMarkerAndFadeOutOMarker() {
+    fun switchFocusToXMarkerThumbnail() {
         val xMarkerFadeIn = markerAlphaAnimation(xMarkerThumbnailPaint, xMarkerThumbnailRect, 63, 255)
         val xMarkerScaleUp = xMarkerScaleAnimation(2F)
         val oMarkerFadeOut = markerAlphaAnimation(oMarkerThumbnailPaint, oMarkerThumbnailRect, 255, 63)
@@ -181,7 +215,7 @@ class GameView : View {
         animatorSet.start()
     }
 
-    fun fadeInOMarkerThumbnail() {
+    fun switchFocusToOMarkerThumbnail() {
         val xMarkerFadeOut = markerAlphaAnimation(xMarkerThumbnailPaint, xMarkerThumbnailRect, 255, 63)
         val xMarkerScaleDown = xMarkerScaleAnimation(0.5F)
         val oMarkerFadeIn = markerAlphaAnimation(oMarkerThumbnailPaint, oMarkerThumbnailRect, 63, 255)
@@ -215,8 +249,8 @@ class GameView : View {
         oMarkerThumbnailPath.computeBounds(bounds, false)
         val startRadius: Float = Math.abs(bounds.left - bounds.right) / 2
         val endRadius: Float = startRadius * scaleFactor
-        val centerX: Float = width.toFloat() / 2
-        val centerY: Float = (height.toFloat() / 2) - (gridLength / 2) - resources.getDimension(R.dimen.markerThumbnailToGridMargin)
+        val centerX: Float = width / 2F
+        val centerY: Float = (height / 2F) - (gridLength / 2) - resources.getDimension(R.dimen.markerThumbnailToGridMargin)
 
         val animator = ValueAnimator.ofFloat(startRadius, endRadius)
         animator.duration = duration
@@ -237,8 +271,8 @@ class GameView : View {
         val markerSideLength: Float = bounds.right - bounds.left
         val startLength: Float = markerSideLength / 2
         val endLength: Float = startLength * scaleFactor
-        val centerX: Float = width.toFloat() / 2
-        val centerY: Float = (height.toFloat() / 2) + (gridLength / 2) + resources.getDimension(R.dimen.markerThumbnailToGridMargin)
+        val centerX: Float = width / 2F
+        val centerY: Float = (height / 2F) + (gridLength / 2) + resources.getDimension(R.dimen.markerThumbnailToGridMargin)
 
         val animator = ValueAnimator.ofFloat(startLength, endLength)
         animator.duration = duration
@@ -253,6 +287,32 @@ class GameView : View {
             invalidate(xMarkerThumbnailRect)
         }
         return animator
+    }
+
+    fun drawMarkerAtIndex(playerId: Int, index: Int) {
+        if (playerId != +1 && playerId != -1) return
+
+        val centerCoordinates = getCenterCoordinatesForMarkerByIndex(index)
+        val path: Path
+        val paint: Paint
+
+        if (playerId == 1) {
+            path = getXMarker(centerCoordinates)
+            paint = xMarkerPaint
+        } else {
+            path = getOMarker(centerCoordinates)
+            paint = oMarkerPaint
+        }
+
+        val pair: Pair<Path, Paint> = Pair(path, paint)
+        markers[index] = pair
+
+        val gridHalfLength = gridLength / 2F
+        val left = ((width / 2) - gridHalfLength).toInt()
+        val top = ((height / 2) - gridHalfLength).toInt()
+        val right = left + gridLength.toInt()
+        val bottom = top + gridLength.toInt()
+        invalidate(left, top, right, bottom)
     }
 
     /** Helper methods **/
@@ -337,5 +397,73 @@ class GameView : View {
         val gridTopY: Float = halfViewHeight - (gridLength / 2)
         val margin: Float = context.resources.getDimension(R.dimen.markerThumbnailToGridMargin)
         oMarkerThumbnailPath.addCircle(halfViewWidth, gridTopY - margin, radius, Path.Direction.CCW)
+    }
+
+    private fun getIndexByTouch(event: MotionEvent): Int {
+        val halfGridLength: Float = gridLength / 2
+        val gridOriginX = (width / 2F) - halfGridLength
+        val gridOriginY = (height / 2F) - halfGridLength
+        val touchX: Float = event.x
+        val touchY: Float = event.y
+
+        val column = (1..3)
+                .firstOrNull { touchX in gridOriginX..(gridOriginX + (it * cellLength)) }
+                ?.let { it - 1 } ?: -1
+
+        val row = (1..3)
+                .firstOrNull { touchY in gridOriginY..(gridOriginY + (it * cellLength)) }
+                ?.let { it - 1 } ?: -1
+
+        if (column < 0 || row < 0) return -1
+        return (row * AppModule.CELL_PER_ROW) + column
+    }
+
+    /**
+     * Returns center x and center y coordinates of the cell located at <tt>index</tt>.
+     *
+     * @param index of the cell at which a marker will be drawn.
+     * @return a point containing center x and center y coordinates of the cell.
+     */
+    private fun getCenterCoordinatesForMarkerByIndex(index: Int): Pair<Float, Float> {
+        val viewCenterX: Float = width / 2F
+        val viewCenterY: Float = height / 2F
+
+        val row: Int = index / AppModule.CELL_PER_ROW
+        val column: Int = index % AppModule.CELL_PER_ROW
+
+        val centerX: Float = viewCenterX + ((column - 1) * cellLength)
+        val centerY: Float = viewCenterY + ((row - 1) * cellLength)
+        return Pair(centerX, centerY)
+    }
+
+    private fun getXMarker(centerCoordinates: Pair<Float, Float>): Path {
+        val path = Path()
+
+        val centerX = centerCoordinates.first
+        val centerY = centerCoordinates.second
+        val cellHalfLength = cellLength / 2F
+
+        val leftX: Float = centerX - cellHalfLength + markerOffset
+        val rightX: Float = leftX + cellLength - (markerOffset * 2)
+        val upperY: Float = centerY - cellHalfLength + markerOffset
+        val lowerY: Float = upperY + cellLength - (markerOffset * 2)
+
+        path.moveTo(leftX, upperY)
+        path.lineTo(rightX, lowerY)
+        path.moveTo(rightX, upperY)
+        path.lineTo(leftX, lowerY)
+
+        return path
+    }
+
+    private fun getOMarker(centerCoordinates: Pair<Float, Float>): Path {
+        val path = Path()
+
+        val centerX = centerCoordinates.first
+        val centerY = centerCoordinates.second
+
+        val radius: Float = (cellLength / 2F) - markerOffset
+        path.addCircle(centerX, centerY, radius, Path.Direction.CCW)
+        return path
     }
 }

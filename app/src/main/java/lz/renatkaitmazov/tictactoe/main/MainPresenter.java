@@ -8,6 +8,6 @@ import lz.renatkaitmazov.tictactoe.base.Presenter;
 
 public interface MainPresenter extends Presenter<MainMvpView> {
     void loadGame();
-    void onButtonClicked(int index);
+    void onCellClicked(int index);
     void startNewGame();
 }
