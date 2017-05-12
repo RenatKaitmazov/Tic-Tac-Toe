@@ -28,17 +28,16 @@ public final class MainPresenterImpl extends BasePresenter<MainMvpView> implemen
     @Override
     public final void loadGame() {
         if (view != null) {
-            view.showProgress();
-            final byte[] playersMoves = ticTacToeGame.getPlayersMoves();
-            view.onGameLoaded(playersMoves);
             if (gameIsOver) {
                 view.onGameIsOver(playerId);
-            }
-
-            if (movesTillTie == 0) {
+            } else if (movesTillTie == 0) {
                 view.onTie();
+            } else {
+                view.showProgress();
+                final byte[] playersMoves = ticTacToeGame.getPlayersMoves();
+                view.onGameLoaded(playersMoves);
+                view.hideProgress();
             }
-            view.hideProgress();
         }
     }
 
@@ -59,16 +58,33 @@ public final class MainPresenterImpl extends BasePresenter<MainMvpView> implemen
             final short column = (short) (index % AppModule.CELL_PER_ROW);
             if (ticTacToeGame.setAt(row, column, playerId)) {
                 view.onPlayerMoved(playerId, index);
-                if (ticTacToeGame.playerHasWon(playerId)) {
-                    gameIsOver = true;
-                    view.onGameIsOver(playerId);
-                } else  {
+                gameIsOver = true;
+                if (ticTacToeGame.hasMatchInFirstRow(playerId)) {
+                    view.onMatchInRow(0);
+                } else if (ticTacToeGame.hasMatchInSecondRow(playerId)) {
+                    view.onMatchInRow(1);
+                } else if (ticTacToeGame.hasMatchInThirdRow(playerId)) {
+                    view.onMatchInRow(2);
+                } else if (ticTacToeGame.hasMatchInFirstColumn(playerId)) {
+                    view.onMatchInColumn(0);
+                } else if (ticTacToeGame.hasMatchInSecondColumn(playerId)) {
+                    view.onMatchInColumn(1);
+                } else if (ticTacToeGame.hasMatchInThirdColumn(playerId)) {
+                    view.onMatchInColumn(2);
+                } else if (ticTacToeGame.hasMatchInLeftToRightDiagonal(playerId)) {
+                    view.onMatchInDiagonal(0);
+                } else if (ticTacToeGame.hasMatchInRightToLeftDiagonal(playerId)) {
+                    view.onMatchInDiagonal(1);
+                } else {
+                    gameIsOver = false;
                     playerId = (byte) -playerId;
                     --movesTillTie;
                     if (movesTillTie == 0) {
                         view.onTie();
                     }
                 }
+            } else {
+                view.onOccupiedCellClicked(index);
             }
         }
     }

@@ -10,6 +10,7 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 import lz.renatkaitmazov.tictactoe.R
 import lz.renatkaitmazov.tictactoe.di.app.AppModule
+import kotlin.collections.ArrayList
 
 /**
  *
@@ -37,7 +38,8 @@ class GameView : View {
     var actionDownIndex = -1
 
     // Holds markers to be drawn
-    val markers: Array<Pair<Path, Paint>?> = Array(AppModule.CELL_PER_ROW * AppModule.CELL_PER_ROW) { null }
+    val markerList: ArrayList<Pair<Path, Paint>> = ArrayList()
+    val markerBounds = RectF()
 
     val fadeAnimationDuration: Long = 300L
     val scaleAnimationDuration: Long = 300L
@@ -167,10 +169,46 @@ class GameView : View {
             canvas.drawPath(xMarkerThumbnailPath, xMarkerThumbnailPaint)
             canvas.drawPath(oMarkerThumbnailPath, oMarkerThumbnailPaint)
 
-            markers
-                    .filter { it != null }
-                    .forEach { canvas.drawPath(it!!.first, it.second) }
+            for ((path, paint) in markerList) {
+                canvas.drawPath(path, paint)
+            }
         }
+    }
+
+    private fun getMarkerAnimator(path: Path,
+                                  paint: Paint,
+                                  duration: Long = scaleAnimationDuration): ValueAnimator {
+        path.computeBounds(markerBounds, false)
+
+        val centerX: Float = markerBounds.centerX()
+        val centerY: Float = markerBounds.centerY()
+        val radius: Int = markerBounds.width().toInt() shr 1
+        val startRadius: Int = radius shr 3
+        val animator = ValueAnimator.ofInt(startRadius, radius)
+        animator.interpolator = decelerateInterpolator
+        animator.duration = duration
+        animator.addUpdateListener {
+            val value = it.animatedValue as Int
+            when(paint) {
+                oMarkerPaint -> {
+                    path.reset()
+                    path.addCircle(centerX, centerY, value.toFloat(), Path.Direction.CCW)
+                }
+                xMarkerPaint -> {
+                    path.reset()
+                    path.moveTo(centerX + value, centerY - value)
+                    path.lineTo(centerX - value, centerY + value)
+                    path.moveTo(centerX - value, centerY - value)
+                    path.lineTo(centerX + value, centerY + value)
+                }
+                else -> throw IllegalArgumentException("Unknown paint $paint")
+            }
+            invalidate(markerBounds.left.toInt(),
+                    markerBounds.top.toInt(),
+                    markerBounds.right.toInt(),
+                    markerBounds.bottom.toInt())
+        }
+        return animator
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -305,14 +343,9 @@ class GameView : View {
         }
 
         val pair: Pair<Path, Paint> = Pair(path, paint)
-        markers[index] = pair
-
-        val gridHalfLength = gridLength / 2F
-        val left = ((width / 2) - gridHalfLength).toInt()
-        val top = ((height / 2) - gridHalfLength).toInt()
-        val right = left + gridLength.toInt()
-        val bottom = top + gridLength.toInt()
-        invalidate(left, top, right, bottom)
+        markerList.add(pair)
+        val markerScaleAnimator = getMarkerAnimator(path, paint)
+        markerScaleAnimator.start()
     }
 
     /** Helper methods **/
@@ -441,12 +474,19 @@ class GameView : View {
 
         val centerX = centerCoordinates.first
         val centerY = centerCoordinates.second
-        val cellHalfLength = cellLength / 2F
+        val radius = cellLength / 2F
 
-        val leftX: Float = centerX - cellHalfLength + markerOffset
-        val rightX: Float = leftX + cellLength - (markerOffset * 2)
-        val upperY: Float = centerY - cellHalfLength + markerOffset
-        val lowerY: Float = upperY + cellLength - (markerOffset * 2)
+        // Make the legs of the X marker not exceed the circle with the radius
+        // equal to <tt>radius</tt>.
+        val sinOf45Degrees: Float = 0.70710678118F
+        val chordLength: Float = 2 * radius * sinOf45Degrees
+        val markerPaintStrokeWidth: Float = resources.getDimension(R.dimen.oMarkerThickness)
+        val offset: Float = ((cellLength - chordLength) / 2) - (markerPaintStrokeWidth / 1.5F)
+
+        val leftX: Float = centerX - radius + markerOffset + offset
+        val rightX: Float = leftX + cellLength - ((markerOffset + offset) * 2)
+        val upperY: Float = centerY - radius + markerOffset + offset
+        val lowerY: Float = upperY + cellLength - ((markerOffset + offset) * 2)
 
         path.moveTo(leftX, upperY)
         path.lineTo(rightX, lowerY)

@@ -85,18 +85,51 @@ public final class MainFragment extends BaseFragment<MainMvpView>
     @Override
     public final void onPlayerMoved(int playerId, int index) {
         gameView.drawMarkerAtIndex(playerId, index);
-        if (playerId == +1) gameView.switchFocusToOMarkerThumbnail();
-        else if (playerId == -1) gameView.switchFocusToXMarkerThumbnail();
+        if (playerId == +1) {
+            gameView.switchFocusToOMarkerThumbnail();
+        } else if (playerId == -1) {
+            gameView.switchFocusToXMarkerThumbnail();
+        } else {
+            throw new IllegalArgumentException("Unknown played id: " + playerId);
+        }
     }
 
     @Override
     public final void onGameIsOver(byte winnerId) {
         // TODO: 1) Show a dialog to the user
+        System.out.println(winnerId + " won the game.");
     }
 
     @Override
     public final void onTie() {
         // TODO: 2) Show a dialog to the user
+        System.out.println("It is a tie!");
+    }
+
+    @Override
+    public final void onOccupiedCellClicked(int index) {
+        System.out.println("The cell has already been chosen by " + index);
+    }
+
+    @Override
+    public final void onMatchInRow(int row) {
+        System.out.println("Match in row " + row);
+    }
+
+    @Override
+    public final void onMatchInColumn(int column) {
+        System.out.println("Match in column " + column);
+    }
+
+    @Override
+    public final void onMatchInDiagonal(int diagonal) {
+        if (diagonal == 0) {
+            System.out.println("Match in left to right diagonal.");
+        } else if (diagonal == 1) {
+            System.out.println("Match in right to left diagonal.");
+        } else {
+            System.out.println("Unknown diagonal " + diagonal);
+        }
     }
 
     /** GameView.GameViewListener implementation **/
