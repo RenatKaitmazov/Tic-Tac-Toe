@@ -4,6 +4,7 @@ import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
+import android.support.v4.content.ContextCompat
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
@@ -40,6 +41,7 @@ class GameView : View {
     // Holds markers to be drawn
     val markerList: ArrayList<Pair<Path, Paint>> = ArrayList()
     val markerBounds = RectF()
+    val lastMoveRect = RectF()
 
     val fadeAnimationDuration: Long = 300L
     val scaleAnimationDuration: Long = 300L
@@ -96,6 +98,14 @@ class GameView : View {
         paint.style = Paint.Style.STROKE
         paint.strokeWidth = context.resources.getDimension(R.dimen.oMarkerThumbnailThickness)
         paint.color = oMarkerThumbnailColor
+        paint
+    }
+
+    val lastMoveHighlightPaint by lazy(LazyThreadSafetyMode.NONE) {
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        paint.style = Paint.Style.STROKE
+        paint.color = ContextCompat.getColor(context, R.color.lastMoveColor)
+        paint.strokeWidth = resources.getDimension(R.dimen.lastMoveStrokeWidth)
         paint
     }
 
@@ -168,47 +178,12 @@ class GameView : View {
             canvas.drawPath(horizontalSeparatorPath, separatorPaint)
             canvas.drawPath(xMarkerThumbnailPath, xMarkerThumbnailPaint)
             canvas.drawPath(oMarkerThumbnailPath, oMarkerThumbnailPaint)
+            canvas.drawRect(lastMoveRect, lastMoveHighlightPaint)
 
             for ((path, paint) in markerList) {
                 canvas.drawPath(path, paint)
             }
         }
-    }
-
-    private fun getMarkerAnimator(path: Path,
-                                  paint: Paint,
-                                  duration: Long = scaleAnimationDuration): ValueAnimator {
-        path.computeBounds(markerBounds, false)
-
-        val centerX: Float = markerBounds.centerX()
-        val centerY: Float = markerBounds.centerY()
-        val radius: Int = markerBounds.width().toInt() shr 1
-        val startRadius: Int = radius shr 3
-        val animator = ValueAnimator.ofInt(startRadius, radius)
-        animator.interpolator = decelerateInterpolator
-        animator.duration = duration
-        animator.addUpdateListener {
-            val value = it.animatedValue as Int
-            when(paint) {
-                oMarkerPaint -> {
-                    path.reset()
-                    path.addCircle(centerX, centerY, value.toFloat(), Path.Direction.CCW)
-                }
-                xMarkerPaint -> {
-                    path.reset()
-                    path.moveTo(centerX + value, centerY - value)
-                    path.lineTo(centerX - value, centerY + value)
-                    path.moveTo(centerX - value, centerY - value)
-                    path.lineTo(centerX + value, centerY + value)
-                }
-                else -> throw IllegalArgumentException("Unknown paint $paint")
-            }
-            invalidate(markerBounds.left.toInt(),
-                    markerBounds.top.toInt(),
-                    markerBounds.right.toInt(),
-                    markerBounds.bottom.toInt())
-        }
-        return animator
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
@@ -505,5 +480,50 @@ class GameView : View {
         val radius: Float = (cellLength / 2F) - markerOffset
         path.addCircle(centerX, centerY, radius, Path.Direction.CCW)
         return path
+    }
+
+    private fun getMarkerAnimator(path: Path,
+                                  paint: Paint,
+                                  duration: Long = scaleAnimationDuration): ValueAnimator {
+        path.computeBounds(markerBounds, false)
+
+        val centerX: Float = markerBounds.centerX()
+        val centerY: Float = markerBounds.centerY()
+        copyCellBounds(centerX, centerY, lastMoveRect)
+        val radius: Int = markerBounds.width().toInt() shr 1
+        val startRadius: Int = radius shr 3
+        val animator = ValueAnimator.ofInt(startRadius, radius)
+        animator.interpolator = decelerateInterpolator
+        animator.duration = duration
+        animator.addUpdateListener {
+            val value = it.animatedValue as Int
+            when(paint) {
+                oMarkerPaint -> {
+                    path.reset()
+                    path.addCircle(centerX, centerY, value.toFloat(), Path.Direction.CCW)
+                }
+                xMarkerPaint -> {
+                    path.reset()
+                    path.moveTo(centerX + value, centerY - value)
+                    path.lineTo(centerX - value, centerY + value)
+                    path.moveTo(centerX - value, centerY - value)
+                    path.lineTo(centerX + value, centerY + value)
+                }
+                else -> throw IllegalArgumentException("Unknown paint $paint")
+            }
+            invalidate(markerBounds.left.toInt(),
+                    markerBounds.top.toInt(),
+                    markerBounds.right.toInt(),
+                    markerBounds.bottom.toInt())
+        }
+        return animator
+    }
+
+    private fun copyCellBounds(centerX: Float, centerY: Float, targetRectF: RectF, padding: Float = 0F) {
+        val radius = (cellLength / 2F) - padding
+        targetRectF.left = centerX - radius
+        targetRectF.right = centerX + radius
+        targetRectF.top = centerY - radius
+        targetRectF.bottom = centerY + radius
     }
 }

@@ -23,5 +23,6 @@
     <dimen name="oMarkerThumbnailThickness">5dp</dimen>
     <dimen name="gridLength">210dp</dimen>
     <dimen name="markerThumbnailToGridMargin">@dimen/margin32</dimen>
+    <dimen name="lastMoveStrokeWidth">4dp</dimen>
 
 </resources>

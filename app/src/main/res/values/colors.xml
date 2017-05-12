@@ -12,5 +12,6 @@
     <color name="xMarkerThumbnailColor">@color/xMarkerColor</color>
     <color name="oMarkerColor">#03A9F4</color>
     <color name="oMarkerThumbnailColor">@color/oMarkerColor</color>
+    <color name="lastMoveColor">@color/separatorColor</color>
     <!--Game View-->
 </resources>
