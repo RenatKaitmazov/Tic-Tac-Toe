@@ -13,5 +13,6 @@
     <color name="oMarkerColor">#03A9F4</color>
     <color name="oMarkerThumbnailColor">@color/oMarkerColor</color>
     <color name="lastMoveColor">@color/separatorColor</color>
+    <color name="cross_line_color">#F44336</color>
     <!--Game View-->
 </resources>

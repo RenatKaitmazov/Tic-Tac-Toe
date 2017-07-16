@@ -24,5 +24,6 @@
     <dimen name="gridLength">210dp</dimen>
     <dimen name="markerThumbnailToGridMargin">@dimen/margin32</dimen>
     <dimen name="lastMoveStrokeWidth">4dp</dimen>
+    <dimen name="crossLineStrokeWidth">8dp</dimen>
 
 </resources>

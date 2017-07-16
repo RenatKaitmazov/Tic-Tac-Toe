@@ -1,5 +1,6 @@
 package lz.renatkaitmazov.tictactoe.main;
 
+import android.content.Context;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -23,13 +24,28 @@ import lz.renatkaitmazov.tictactoe.di.fragment.FragmentComponent;
 public final class MainFragment extends BaseFragment<MainMvpView>
         implements MainMvpView, GameView.GameViewListener {
 
+    /** **/
+    public interface Callback {
+        void onTie();
+        void onGameIdOver(int winnerId);
+    }
+
     /** Instance variables **/
 
     @Inject MainPresenter presenter;
-
     private GameView gameView;
+    private Callback callback;
+    private int winnerId;
 
     /** Lifecycle **/
+
+    public final void onAttach(Context context) {
+        super.onAttach(context);
+        if (!(context instanceof Callback)) {
+            throw new IllegalArgumentException(context.toString() + " must implement MainFragment.Callback");
+        }
+        callback = ((Callback) context);
+    }
 
     @Nullable
     @Override
@@ -96,40 +112,34 @@ public final class MainFragment extends BaseFragment<MainMvpView>
 
     @Override
     public final void onGameIsOver(byte winnerId) {
-        // TODO: 1) Show a dialog to the user
-        System.out.println(winnerId + " won the game.");
+        if (winnerId == 0) {
+            callback.onTie();
+        }
+        this.winnerId = winnerId;
     }
 
     @Override
     public final void onTie() {
-        // TODO: 2) Show a dialog to the user
-        System.out.println("It is a tie!");
+        callback.onTie();
     }
 
     @Override
     public final void onOccupiedCellClicked(int index) {
-        System.out.println("The cell has already been chosen by " + index);
     }
 
     @Override
     public final void onMatchInRow(int row) {
-        System.out.println("Match in row " + row);
+        gameView.crossRow(row);
     }
 
     @Override
     public final void onMatchInColumn(int column) {
-        System.out.println("Match in column " + column);
+        gameView.crossColumn(column);
     }
 
     @Override
     public final void onMatchInDiagonal(int diagonal) {
-        if (diagonal == 0) {
-            System.out.println("Match in left to right diagonal.");
-        } else if (diagonal == 1) {
-            System.out.println("Match in right to left diagonal.");
-        } else {
-            System.out.println("Unknown diagonal " + diagonal);
-        }
+        gameView.crossDiagonal(diagonal);
     }
 
     /** GameView.GameViewListener implementation **/
@@ -137,23 +147,30 @@ public final class MainFragment extends BaseFragment<MainMvpView>
     @Override
     public final void onCellClicked(int index) {
         presenter.onCellClicked(index);
-        System.out.println("Clicked at index: " + index);
     }
 
     @Override
     public final void onOutsideGridClicked() {
-        System.out.println("Clicked outside of the grid");
     }
 
     @Override
     public final void onFingerMovedAwayFromCell() {
-        System.out.println("Finger moved away from cell");
+    }
+
+    @Override
+    public void onCrossLineFinish() {
+        callback.onGameIdOver(winnerId);
     }
 
     /** API **/
 
     public static MainFragment newInstance() {
         return new MainFragment();
+    }
+
+    public void startNewGame() {
+        presenter.startNewGame();
+        gameView.startNewGame();
     }
 
     /** Helper methods **/

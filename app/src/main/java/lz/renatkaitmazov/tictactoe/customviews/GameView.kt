@@ -1,5 +1,6 @@
 package lz.renatkaitmazov.tictactoe.customviews
 
+import android.animation.Animator
 import android.animation.AnimatorSet
 import android.animation.ValueAnimator
 import android.content.Context
@@ -11,7 +12,6 @@ import android.view.View
 import android.view.animation.DecelerateInterpolator
 import lz.renatkaitmazov.tictactoe.R
 import lz.renatkaitmazov.tictactoe.di.app.AppModule
-import kotlin.collections.ArrayList
 
 /**
  *
@@ -26,6 +26,7 @@ class GameView : View {
         fun onCellClicked(index: Int)
         fun onOutsideGridClicked()
         fun onFingerMovedAwayFromCell()
+        fun onCrossLineFinish()
     }
 
     /** Instance variables **/
@@ -39,17 +40,24 @@ class GameView : View {
     var actionDownIndex = -1
 
     // Holds markers to be drawn
-    val markerList: ArrayList<Pair<Path, Paint>> = ArrayList()
+    val markerList: Array<Pair<Path, Paint>?> = Array(AppModule.CELL_PER_ROW * AppModule.CELL_PER_ROW) {
+        null
+    }
+    // For efficiency, create two rect objects and just change their state
     val markerBounds = RectF()
-    val lastMoveRect = RectF()
+    val lastMoveBounds = RectF()
 
-    val fadeAnimationDuration: Long = 300L
-    val scaleAnimationDuration: Long = 300L
+    lateinit var canvas: Canvas
+
+    val fadeAnimationDuration = 300L
+    val scaleAnimationDuration = 300L
+    val crossLineAnimationDuration = 500L
 
     val verticalSeparatorPath = Path()
     val horizontalSeparatorPath = Path()
     val xMarkerThumbnailPath = Path()
     val oMarkerThumbnailPath = Path()
+    val crossLinePath = Path()
 
     val decelerateInterpolator = DecelerateInterpolator()
 
@@ -106,6 +114,14 @@ class GameView : View {
         paint.style = Paint.Style.STROKE
         paint.color = ContextCompat.getColor(context, R.color.lastMoveColor)
         paint.strokeWidth = resources.getDimension(R.dimen.lastMoveStrokeWidth)
+        paint
+    }
+
+    val crossLinePaint by lazy(LazyThreadSafetyMode.NONE) {
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        paint.style = Paint.Style.STROKE
+        paint.color = ContextCompat.getColor(context, R.color.cross_line_color)
+        paint.strokeWidth = resources.getDimension(R.dimen.crossLineStrokeWidth)
         paint
     }
 
@@ -174,15 +190,20 @@ class GameView : View {
 
     override fun onDraw(canvas: Canvas?) {
         if (canvas != null) {
+            this.canvas = canvas
             canvas.drawPath(verticalSeparatorPath, separatorPaint)
             canvas.drawPath(horizontalSeparatorPath, separatorPaint)
             canvas.drawPath(xMarkerThumbnailPath, xMarkerThumbnailPaint)
             canvas.drawPath(oMarkerThumbnailPath, oMarkerThumbnailPaint)
-            canvas.drawRect(lastMoveRect, lastMoveHighlightPaint)
+            canvas.drawRect(lastMoveBounds, lastMoveHighlightPaint)
 
-            for ((path, paint) in markerList) {
-                canvas.drawPath(path, paint)
+            markerList.forEach { pair ->
+                if (pair == null) {
+                    return@forEach
+                }
+                canvas.drawPath(pair.first, pair.second)
             }
+            canvas.drawPath(crossLinePath, crossLinePaint)
         }
     }
 
@@ -241,69 +262,10 @@ class GameView : View {
         animatorSet.start()
     }
 
-    fun markerAlphaAnimation(markerPaint: Paint,
-                             dirtyRect: Rect,
-                             startValue: Int,
-                             endValue: Int,
-                             duration: Long = fadeAnimationDuration): ValueAnimator {
-        val animator = ValueAnimator.ofInt(startValue, endValue)
-        animator.duration = duration
-        animator.interpolator = decelerateInterpolator
-        animator.addUpdateListener {
-            val alpha = it.animatedValue as Int
-            markerPaint.alpha = alpha
-            invalidate(dirtyRect)
-        }
-        return animator
-    }
-
-    fun oMarkerScaleAnimation(scaleFactor: Float, duration: Long = scaleAnimationDuration): ValueAnimator {
-        val bounds = RectF()
-        oMarkerThumbnailPath.computeBounds(bounds, false)
-        val startRadius: Float = Math.abs(bounds.left - bounds.right) / 2
-        val endRadius: Float = startRadius * scaleFactor
-        val centerX: Float = width / 2F
-        val centerY: Float = (height / 2F) - (gridLength / 2) - resources.getDimension(R.dimen.markerThumbnailToGridMargin)
-
-        val animator = ValueAnimator.ofFloat(startRadius, endRadius)
-        animator.duration = duration
-        animator.interpolator = decelerateInterpolator
-        animator.addUpdateListener {
-            val radius = it.animatedValue as Float
-            oMarkerThumbnailPath.reset()
-            oMarkerThumbnailPath.addCircle(centerX, centerY, radius, Path.Direction.CCW)
-            invalidate(oMarkerThumbnailRect)
-        }
-        return animator
-    }
-
-    fun xMarkerScaleAnimation(scaleFactor: Float, duration: Long = scaleAnimationDuration): ValueAnimator {
-        val bounds = RectF()
-        xMarkerThumbnailPath.computeBounds(bounds, false)
-
-        val markerSideLength: Float = bounds.right - bounds.left
-        val startLength: Float = markerSideLength / 2
-        val endLength: Float = startLength * scaleFactor
-        val centerX: Float = width / 2F
-        val centerY: Float = (height / 2F) + (gridLength / 2) + resources.getDimension(R.dimen.markerThumbnailToGridMargin)
-
-        val animator = ValueAnimator.ofFloat(startLength, endLength)
-        animator.duration = duration
-        animator.interpolator = decelerateInterpolator
-        animator.addUpdateListener {
-            val legLength = it.animatedValue as Float
-            xMarkerThumbnailPath.reset()
-            xMarkerThumbnailPath.moveTo(centerX + legLength, centerY - legLength)
-            xMarkerThumbnailPath.lineTo(centerX - legLength, centerY + legLength)
-            xMarkerThumbnailPath.moveTo(centerX - legLength, centerY - legLength)
-            xMarkerThumbnailPath.lineTo(centerX + legLength, centerY + legLength)
-            invalidate(xMarkerThumbnailRect)
-        }
-        return animator
-    }
-
     fun drawMarkerAtIndex(playerId: Int, index: Int) {
-        if (playerId != +1 && playerId != -1) return
+        if (playerId != +1 && playerId != -1) {
+            throw IllegalArgumentException("Unknown player id $playerId")
+        }
 
         val centerCoordinates = getCenterCoordinatesForMarkerByIndex(index)
         val path: Path
@@ -318,9 +280,84 @@ class GameView : View {
         }
 
         val pair: Pair<Path, Paint> = Pair(path, paint)
-        markerList.add(pair)
+        markerList[index] = pair
         val markerScaleAnimator = getMarkerAnimator(path, paint)
         markerScaleAnimator.start()
+    }
+
+    fun crossRow(startRow: Int) {
+        val start: Float = (width.toFloat() - (cellLength * 3)) / 2
+        val end: Float = start + gridLength
+        val crossLineY = getRowCrossLineY(startRow)
+        val cellLengthHalf = cellLength / 2
+        val top = crossLineY.toInt() - cellLengthHalf.toInt()
+        val bottom = crossLineY.toInt() + cellLengthHalf.toInt()
+        val animator = getCrossLineValueAnimatorWithoutUpdateListener(start, end)
+        crossLinePath.moveTo(start, crossLineY)
+        val rect = Rect(start.toInt(), top, end.toInt(), bottom)
+        animator.addUpdateListener {
+            val animatedValue = it.animatedValue as Float
+            crossLinePath.lineTo(animatedValue, crossLineY)
+            invalidate(rect)
+        }
+        animator.start()
+    }
+
+    fun crossColumn(startColumn: Int) {
+        val start: Float = (height.toFloat() - (cellLength * 3)) / 2
+        val end: Float = start + gridLength
+        val crossLineX = getColumnCrossLineX(startColumn)
+        val cellLengthHalf = cellLength / 2
+        val left = crossLineX.toInt() - cellLengthHalf.toInt()
+        val right = crossLineX.toInt() + cellLengthHalf.toInt()
+        val animator = getCrossLineValueAnimatorWithoutUpdateListener(start, end)
+        crossLinePath.moveTo(crossLineX, start)
+        val rect = Rect(left, start.toInt(), right, end.toInt())
+        animator.addUpdateListener {
+            val animatedValue = it.animatedValue as Float
+            crossLinePath.lineTo(crossLineX, animatedValue)
+            invalidate(rect)
+        }
+        animator.start()
+    }
+
+    fun crossDiagonal(diagonalIndex: Int) {
+        val crossLineStartX = (width.toFloat() - (cellLength * 3)) / 2
+        val crossLineEndX = crossLineStartX + gridLength
+        val crossLineStartY = (height.toFloat() - (cellLength * 3)) / 2
+        val start = diagonalIndex * gridLength
+        val end = gridLength - start
+        val animator = getCrossLineValueAnimatorWithoutUpdateListener(start, end)
+        if (diagonalIndex == 0) {
+            crossLinePath.moveTo(crossLineStartX, crossLineStartY)
+        } else {
+            crossLinePath.moveTo(crossLineEndX, crossLineStartY)
+        }
+        animator.addUpdateListener {
+            val animatedValue = it.animatedValue as Float
+            when (diagonalIndex) {
+                0 -> crossLinePath.lineTo(crossLineStartX + animatedValue, crossLineStartY + animatedValue)
+                1 -> crossLinePath.lineTo(crossLineEndX - animatedValue, crossLineStartY + animatedValue)
+            }
+            invalidate()
+        }
+        animator.start()
+    }
+
+    fun startNewGame() {
+        actionDownIndex = -1
+        for (i in markerList.indices) {
+            markerList[i] = null
+        }
+        lastMoveBounds.setEmpty()
+        crossLinePath.reset()
+        xMarkerThumbnailPath.reset()
+        oMarkerThumbnailPath.reset()
+        xMarkerThumbnailPaint.color = xMarkerThumbnailColor
+        oMarkerThumbnailPaint.color = oMarkerThumbnailColor
+        setupXMarkerThumbnailPath(width.toFloat(), height.toFloat())
+        setupOMarkerThumbnailPath(width.toFloat(), height.toFloat())
+        invalidate()
     }
 
     /** Helper methods **/
@@ -426,6 +463,69 @@ class GameView : View {
         return (row * AppModule.CELL_PER_ROW) + column
     }
 
+    private fun markerAlphaAnimation(markerPaint: Paint,
+                                     dirtyRect: Rect,
+                                     startValue: Int,
+                                     endValue: Int,
+                                     duration: Long = fadeAnimationDuration): ValueAnimator {
+        val animator = ValueAnimator.ofInt(startValue, endValue)
+        animator.duration = duration
+        animator.interpolator = decelerateInterpolator
+        animator.addUpdateListener {
+            val alpha = it.animatedValue as Int
+            markerPaint.alpha = alpha
+            invalidate(dirtyRect)
+        }
+        return animator
+    }
+
+    private fun oMarkerScaleAnimation(scaleFactor: Float,
+                                      duration: Long = scaleAnimationDuration): ValueAnimator {
+        val bounds = RectF()
+        oMarkerThumbnailPath.computeBounds(bounds, false)
+        val startRadius: Float = Math.abs(bounds.left - bounds.right) / 2
+        val endRadius: Float = startRadius * scaleFactor
+        val centerX: Float = width / 2F
+        val centerY: Float = (height / 2F) - (gridLength / 2) - resources.getDimension(R.dimen.markerThumbnailToGridMargin)
+
+        val animator = ValueAnimator.ofFloat(startRadius, endRadius)
+        animator.duration = duration
+        animator.interpolator = decelerateInterpolator
+        animator.addUpdateListener {
+            val radius = it.animatedValue as Float
+            oMarkerThumbnailPath.reset()
+            oMarkerThumbnailPath.addCircle(centerX, centerY, radius, Path.Direction.CCW)
+            invalidate(oMarkerThumbnailRect)
+        }
+        return animator
+    }
+
+    private fun xMarkerScaleAnimation(scaleFactor: Float,
+                                      duration: Long = scaleAnimationDuration): ValueAnimator {
+        val bounds = RectF()
+        xMarkerThumbnailPath.computeBounds(bounds, false)
+
+        val markerSideLength: Float = bounds.right - bounds.left
+        val startLength: Float = markerSideLength / 2
+        val endLength: Float = startLength * scaleFactor
+        val centerX: Float = width / 2F
+        val centerY: Float = (height / 2F) + (gridLength / 2) + resources.getDimension(R.dimen.markerThumbnailToGridMargin)
+
+        val animator = ValueAnimator.ofFloat(startLength, endLength)
+        animator.duration = duration
+        animator.interpolator = decelerateInterpolator
+        animator.addUpdateListener {
+            val legLength = it.animatedValue as Float
+            xMarkerThumbnailPath.reset()
+            xMarkerThumbnailPath.moveTo(centerX + legLength, centerY - legLength)
+            xMarkerThumbnailPath.lineTo(centerX - legLength, centerY + legLength)
+            xMarkerThumbnailPath.moveTo(centerX - legLength, centerY - legLength)
+            xMarkerThumbnailPath.lineTo(centerX + legLength, centerY + legLength)
+            invalidate(xMarkerThumbnailRect)
+        }
+        return animator
+    }
+
     /**
      * Returns center x and center y coordinates of the cell located at <tt>index</tt>.
      *
@@ -489,7 +589,7 @@ class GameView : View {
 
         val centerX: Float = markerBounds.centerX()
         val centerY: Float = markerBounds.centerY()
-        copyCellBounds(centerX, centerY, lastMoveRect)
+        copyCellBounds(centerX, centerY, lastMoveBounds)
         val radius: Int = markerBounds.width().toInt() shr 1
         val startRadius: Int = radius shr 3
         val animator = ValueAnimator.ofInt(startRadius, radius)
@@ -526,4 +626,31 @@ class GameView : View {
         targetRectF.top = centerY - radius
         targetRectF.bottom = centerY + radius
     }
+
+    private fun getCrossLineValueAnimatorWithoutUpdateListener(start: Float,
+                                                               end: Float,
+                                                               duration: Long = crossLineAnimationDuration): ValueAnimator {
+        val animator = ValueAnimator.ofFloat(start, end)
+        animator.duration = duration
+        animator.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(p0: Animator?) {
+                isClickable = false
+            }
+
+            override fun onAnimationRepeat(p0: Animator?) {
+            }
+
+            override fun onAnimationEnd(p0: Animator?) {
+                isClickable = true
+                gameViewListener?.onCrossLineFinish()
+            }
+
+            override fun onAnimationCancel(p0: Animator?) {
+            }
+        })
+        return animator
+    }
+
+    private fun getRowCrossLineY(row: Int) = (height.toFloat() / 2) + ((row - 1) * cellLength)
+    private fun getColumnCrossLineX(column: Int) = (width.toFloat() / 2) + ((column - 1) * cellLength)
 }

@@ -3,4 +3,10 @@
 
     <string name="mark_player_1">X</string>
     <string name="mark_player_2">O</string>
+
+    <string name="title_tie">It is a tie!</string>
+    <string name="title_winner">%1$s is the winner!</string>
+    <string name="description_game_over_dialog">Do you want to start a new game or exit?</string>
+    <string name="title_button_new_game">Start New Game</string>
+    <string name="title_button_exit">Exit</string>
 </resources>

@@ -83,6 +83,9 @@ public final class MainPresenterImpl extends BasePresenter<MainMvpView> implemen
                         view.onTie();
                     }
                 }
+                if (gameIsOver) {
+                    view.onGameIsOver(playerId);
+                }
             } else {
                 view.onOccupiedCellClicked(index);
             }
