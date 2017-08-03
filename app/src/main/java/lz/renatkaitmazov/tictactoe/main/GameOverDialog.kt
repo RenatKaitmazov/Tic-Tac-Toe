@@ -60,6 +60,7 @@ class GameOverDialog : DialogFragment() {
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        isCancelable = false
         val winnerId = arguments.getInt(ARG_KEY_WINNER_ID)
         val title = when (winnerId) {
             0 -> getString(R.string.title_tie)
@@ -68,7 +69,6 @@ class GameOverDialog : DialogFragment() {
             else -> throw IllegalArgumentException("Unknown winner id: $winnerId")
         }
         return AlertDialog.Builder(context)
-                .setCancelable(false)
                 .setTitle(title)
                 .setMessage(R.string.description_game_over_dialog)
                 .setPositiveButton(R.string.title_button_new_game) {_, _ -> callback.onStartNewGame() }
